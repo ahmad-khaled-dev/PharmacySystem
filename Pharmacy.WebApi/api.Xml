@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Pharmacy.WebApi</name>
+    </assembly>
+    <members>
+        <member name="M:Pharmacy.WebApi.Controllers.AccountController.login(Pharmacy.Core.DTO.LoginDTO)">
+            <summary>
+            Use this method to login 
+            </summary>
+            <param name="loginDTO"></param>
+            <returns>it will return AuthorizationResponse include :token ,refresh token</returns>
+        </member>
+        <member name="M:Pharmacy.WebApi.Controllers.AccountController.GenerateNewAccessToken(Pharmacy.Core.DTO.TokenModelDTO)">
+            <summary>
+            It use to generate new Token
+            </summary>
+            <param name="tokenModel"></param>
+            <returns>it will return a new token as response</returns>
+        </member>
+        <member name="T:Pharmacy.WebApi.Controllers.EmployeeController">
+            <summary>
+            //This Controller use by Admin to Manpulate Users
+            </summary>
+        </member>
+    </members>
+</doc>
