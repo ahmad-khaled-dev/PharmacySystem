@@ -7,11 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 using Pharmacy.Core.ConfiurationSettings;
 using Pharmacy.Core.Domain.Entities.IdentityEntities;
 using Pharmacy.Core.Domain.IRepositoriesContracts;
-using Pharmacy.Core.DTO;
 using Pharmacy.Core.IServiceContracts;
 using Pharmacy.Core.IServiceContracts.IValidatorContract;
 using Pharmacy.Core.Services;
 using Pharmacy.Core.Services.ValidatorServices;
+using Pharmacy.Infrastructure.Data.Seeders;
 using Pharmacy.Infrastructure.DbContext;
 using Pharmacy.Infrastructure.Repositories;
 using System.Text;
@@ -66,9 +66,7 @@ namespace Pharmacy.WebApi.StartupExtension
 
                 options.Lockout.MaxFailedAccessAttempts = 3;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-
-                // options.SignIn.RequireConfirmedEmail = true;
-
+                 
                 options.User.RequireUniqueEmail = true;
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -142,15 +140,7 @@ namespace Pharmacy.WebApi.StartupExtension
             services.AddTransient<IEmployeeService, EmployeeService>();
             services.AddTransient<IUserRegistrationService, UserRegistrationService>();
 
- 
-
-            
-            //Supplier 
-
-            //services.AddTransient<ISuppliersRepository, SuppliersRepository>();
-            //services.AddTransient<ISupplierService, SupplierService>();
-
-
+  
             //Purchase
              
             services.AddTransient<IPurchaseRepository, PurchasesRepository>();
@@ -214,7 +204,11 @@ namespace Pharmacy.WebApi.StartupExtension
 
             //InventoryItem
             services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
- 
+
+
+            //Seed Data by bogus library 
+             
+            services.AddHostedService<DbSeederService>();
 
 
             return services;

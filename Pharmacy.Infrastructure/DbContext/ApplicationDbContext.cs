@@ -57,8 +57,8 @@ namespace Pharmacy.Infrastructure.DbContext
     .HasForeignKey(si => si.ProductId)
     .OnDelete(DeleteBehavior.Restrict);
 
- 
 
+             
         }
 
     }

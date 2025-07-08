@@ -12,8 +12,8 @@ using Pharmacy.Infrastructure.DbContext;
 namespace Pharmacy.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250708103306_initiatial2")]
-    partial class initiatial2
+    [Migration("20250715095553_initial3")]
+    partial class initial3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -37,7 +37,7 @@ namespace Pharmacy.Core.Services
                     {
                         Email = employeeAddRequest.Email,
                         PhoneNumber = employeeAddRequest.Phone,
-                        UserName = employeeAddRequest.Email.Split('@')[0] ?? employeeAddRequest.Email
+                        UserName = employeeAddRequest.UserName
                     };
 
                     if (await _roleManager.RoleExistsAsync("User") == false && employeeAddRequest.Role == "User")

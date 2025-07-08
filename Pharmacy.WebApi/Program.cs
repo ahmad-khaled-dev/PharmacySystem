@@ -20,14 +20,19 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// «” œ⁄«¡ Seeder œ«Œ· scope
+ 
 using (var scope = app.Services.CreateScope())
 {
+   
     var services = scope.ServiceProvider;
     await IdentityInitializer.SeedAdminUserAsync(services);
 }
 
+<<<<<<< HEAD
 // ? Configure Middleware Order („Â„ Ãœ«)
+=======
+ 
+>>>>>>> Add Seed data with library bogusinitial
 
 // Swagger
 app.UseSwagger();

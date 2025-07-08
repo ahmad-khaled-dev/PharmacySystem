@@ -11,6 +11,9 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
         [Required]
         public string Password { set; get; }
 
+        public string UserName {  set; get; }
+
+
 
         [Required]
         public string  PersonName { set; get; }
@@ -47,9 +50,14 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
                 NumberOfCertificate = this.NumberOfCertificate,
                 Role = this.Role ,
                UserId = this.UesrId,
+<<<<<<< HEAD
                Phone=this.Phone
 
                 
+=======
+               Phone=this.Phone,
+                 
+>>>>>>> Add Seed data with library bogusinitial
 
             };
         }
