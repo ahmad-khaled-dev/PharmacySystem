@@ -4,36 +4,41 @@ using Pharmacy.WebApi.StartupExtension;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.configureServices(builder.Configuration);
- 
+
+// ? Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000") // ? »Ê—  React
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
-
-//Seed data
-
-
 
 // «” œ⁄«¡ Seeder œ«Œ· scope
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     await IdentityInitializer.SeedAdminUserAsync(services);
 }
 
-// Configure the HTTP request pipeline.
+// ? Configure Middleware Order („Â„ Ãœ«)
 
-
-//Use Swagger
-
-
+// Swagger
 app.UseSwagger();
-
 app.UseSwaggerUI();
 
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// ? «” Œœ„ CORS Â‰«
+app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
 app.UseAuthorization();

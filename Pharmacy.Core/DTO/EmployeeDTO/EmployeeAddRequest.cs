@@ -46,7 +46,8 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
                 PersonName = this.PersonName,
                 NumberOfCertificate = this.NumberOfCertificate,
                 Role = this.Role ,
-               UserId = this.UesrId
+               UserId = this.UesrId,
+               Phone=this.Phone
 
                 
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Pharmacy.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -404,7 +404,7 @@ namespace Pharmacy.Infrastructure.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: false),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ImagPrescription = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -429,14 +429,12 @@ namespace Pharmacy.Infrastructure.Migrations
                 {
                     BatchID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Quantity = table.Column<int>(type: "int", nullable: true),
-                    CurrentPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     Barcode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BatchNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Product = table.Column<int>(type: "int", nullable: false),
-                    PurchaseItemId = table.Column<int>(type: "int", nullable: false),
-                    LastUpdate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    PurchaseItemId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
