@@ -50,14 +50,8 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
                 NumberOfCertificate = this.NumberOfCertificate,
                 Role = this.Role ,
                UserId = this.UesrId,
-<<<<<<< HEAD
-               Phone=this.Phone
-
-                
-=======
                Phone=this.Phone,
                  
->>>>>>> Add Seed data with library bogusinitial
 
             };
         }
