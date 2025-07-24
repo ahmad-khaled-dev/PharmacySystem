@@ -20,7 +20,7 @@ namespace Pharmacy.Infrastructure.Repositories
         public async Task<List<Batch>> GetBatchesByProductIdAsync(int productId)
         {
             return await _applicationDbContext.Batches
-               .Where(b => b.ProductId == productId && b.Quantity > 0)
+               .Where(b => b.ProductId == productId )
                .OrderBy(b => b.ExpirationDate)
                .ToListAsync();
                 

@@ -7,7 +7,8 @@ using Pharmacy.WebApi.Controllers;
 
 namespace Pharmacy.WebAPI.Controllers
 {
-    [AllowAnonymous]
+
+    [Authorize]
     public class ProductCategoryController : CustomController
     {
         private readonly ICategoryProductService _categoryService;

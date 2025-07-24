@@ -8,15 +8,12 @@ namespace Pharmacy.Core.ConfiurationSettings
 {
     public class JwtSettings
     {
-        public string? Issuer { set; get; } 
-
-        public string? Audience { set; get; }  
-
-        public double ExiprationMinutes { set; get; }
-
-        public string? Key { set; get; }  
-
+        public string Issuer { get; set; } = "";
+        public string Audience { get; set; } = "";
+        public double ExpirationMinutes { get; set; }
+        public string Key { get; set; } = "";
     }
+
 
 
 }

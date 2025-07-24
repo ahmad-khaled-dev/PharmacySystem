@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Pharmacy.Core.Domain.Entities;
 using Pharmacy.Core.Domain.Entities.IdentityEntities;
@@ -60,28 +61,37 @@ public class SaleService : ISaleService
         var saleEntity = saleRequest.ToSale();
         saleEntity.TotalAmount = CalculateTotalAmount(saleEntity.SaleItems.ToList());
 
-        await _unitOfWorkService.BeginTransactionAsync();
+        
+        var strategy =  _unitOfWorkService.CreateExecutionStrategy();
 
-        try
+        return await strategy.ExecuteAsync(async () =>
         {
-            var savedSale = await _saleRepository.AddSaleAsync(saleEntity);
-            savedSale = await _saleRepository.GetSaleByIdAsync(savedSale.Id);
+            await _unitOfWorkService.BeginTransactionAsync();
 
-            foreach (var saleItem in savedSale.SaleItems)
+            try
             {
-                await DeductFromBatchesAsync(saleItem.ProductId, saleItem.Quantity, saleItem.Id);
+                var savedSale = await _saleRepository.AddSaleAsync(saleEntity);
+
+                await _unitOfWorkService.SaveChangesAsync();
+
+                savedSale = await _saleRepository.GetSaleByIdAsync(savedSale.Id);
+
+                foreach (var saleItem in savedSale.SaleItems)
+                {
+                    await DeductFromBatchesAsync(saleItem.ProductId, saleItem.Quantity, saleItem.Id);
+                }
+
+                await _unitOfWorkService.SaveChangesAsync();
+                await _unitOfWorkService.CommitTransactionAsync();
+
+                return savedSale.ToSaleResponse();
             }
-
-            await _unitOfWorkService.SaveChangesAsync();
-            await _unitOfWorkService.CommitTransactionAsync();
-
-            return savedSale.ToSaleResponse();
-        }
-        catch
-        {
-            await _unitOfWorkService.RollbackTransactionAsync();
-            throw;
-        }
+            catch
+            {
+                await _unitOfWorkService.RollbackTransactionAsync();
+                throw;
+            }
+        });
     }
 
     public async Task<bool> DeleteSaleAsync(int id)
@@ -92,6 +102,7 @@ public class SaleService : ISaleService
     public async Task<bool> UpdateSaleAsync(SaleUpdateRequest saleUpdate)
     {
         var employee = await _employeeRepository.GetByUserIdAsync(_currentUserService.GetUserId());
+
         if (employee == null)
             throw new Exception("لم يتم العثور على موظف مرتبط بالمستخدم الحالي.");
 
@@ -101,62 +112,78 @@ public class SaleService : ISaleService
             return false;
 
         var productIds = saleUpdate.SaleItems.Select(si => si.ProductID).ToList();
+
         var products = await _productRepository.GetExistingProductsByIdsAsync(productIds);
+
         if (products.Count != productIds.Count)
             return false;
 
         var productMap = products.ToDictionary(p => p.ProductId);
 
         var existingSale = await _saleRepository.GetSaleByIdAsync(saleUpdate.Id);
+
         if (existingSale == null)
             return false;
+         
 
         foreach (var item in saleUpdate.SaleItems)
         {
-            var existItem = existingSale.SaleItems.FirstOrDefault(si => si.Id == item.Id);
-
             if (!productMap.TryGetValue(item.ProductID, out var product))
                 return false;
 
             item.Price = product.SellPrice;
 
+            // معالجة صورة الوصفة إن لزم
+            var existItem = existingSale.SaleItems.FirstOrDefault(si => si.Id == item.Id);
             if (product.Medicine != null && product.Medicine.IsRequiredDescription)
             {
                 item.ImagePath = await HandlePrescriptionImage(item, existItem?.ImagPrescription);
             }
         }
 
-        var saleEntity = saleUpdate.ToSale();
 
-        foreach (var item in saleEntity.SaleItems)
+        var strategy = _unitOfWorkService.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
         {
-            await ReturnQuantityToBatchAsync(item);
-        }
-
-        await _unitOfWorkService.BeginTransactionAsync();
-        try
-        {
-            saleUpdate.TotalAmount =  CalculateTotalAmount(saleEntity.SaleItems.ToList());
-
-            var updated = await _saleRepository.UpdateSaleAsync(saleEntity);
-            if (!updated)
-                throw new Exception("فشل في تحديث البيع.");
-
-            foreach (var saleItem in saleEntity.SaleItems)
+            await _unitOfWorkService.BeginTransactionAsync();
+            try
             {
-                await DeductFromBatchesAsync(saleItem.ProductId, saleItem.Quantity, saleItem.Id);
+                // استرجاع الكميات القديمة وحذف سجلات المخزون
+                foreach (var oldItem in existingSale.SaleItems)
+                {
+                    await ReturnQuantityToBatchAsync(oldItem);
+                    await DeleteInventoryItemsForSaleItemAsync(oldItem.Id);
+                     
+                }
+
+                // تحديث العناصر الجديدة داخل الكائن الموجود
+                existingSale.SaleItems = saleUpdate.SaleItems.Select(si => si.ToSaleItem()).ToList();
+                existingSale.TotalAmount = CalculateTotalAmount(existingSale.SaleItems.ToList());
+                existingSale.EmployeeId = saleUpdate.EmployeeId;
+
+                var updated = await _saleRepository.UpdateSaleAsync(existingSale);
+                if (!updated)
+                    throw new Exception("فشل في تحديث البيع.");
+
+                // خصم الكميات من المخزون
+                foreach (var saleItem in existingSale.SaleItems)
+                {
+                    await DeductFromBatchesAsync(saleItem.ProductId, saleItem.Quantity, saleItem.Id);
+                    await _unitOfWorkService.SaveChangesAsync();
+                }
+
+                await _unitOfWorkService.SaveChangesAsync();
+                await _unitOfWorkService.CommitTransactionAsync();
+
+                return true;
             }
-
-            await _unitOfWorkService.SaveChangesAsync();
-            await _unitOfWorkService.CommitTransactionAsync();
-
-            return true;
-        }
-        catch
-        {
-            await _unitOfWorkService.RollbackTransactionAsync();
-            throw;
-        }
+            catch
+            {
+                await _unitOfWorkService.RollbackTransactionAsync();
+                throw;
+            }
+        });
     }
 
     private async Task<string?> HandlePrescriptionImage(SaleItemUpdateRequest item, string? existingImagePath)
@@ -262,7 +289,17 @@ public class SaleService : ISaleService
     {
         return saleItems.Sum(i => i.Price * i.Quantity ?? 0);
     }
- 
-    
- 
+
+    private async Task DeleteInventoryItemsForSaleItemAsync(int saleItemId)
+    {
+        var inventoryItems = await _inventoryItemRepository.GetBySaleItemIdAsync(saleItemId);
+
+        if (inventoryItems.Any())
+        {
+            _inventoryItemRepository.RemoveRange(inventoryItems);
+        }
+    }
+
+
+
 }

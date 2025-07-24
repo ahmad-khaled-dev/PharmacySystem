@@ -37,7 +37,7 @@ public class SaleRepository : ISaleRepository
     public async Task<Sale> AddSaleAsync(Sale sale)
     { 
 
-        await _sales.AddAsync(sale);
+         _sales.AddAsync(sale);
        
         return sale;
     }
@@ -91,8 +91,7 @@ public class SaleRepository : ISaleRepository
        
         return true;
     }
-
-
+     
     public async Task<bool> DeleteSaleAsync(int id)
     {
         var existing = await _context.Sales.FindAsync(id);
