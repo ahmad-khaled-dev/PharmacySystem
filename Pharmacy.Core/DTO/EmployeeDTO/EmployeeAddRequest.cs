@@ -12,8 +12,7 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
         public string Password { set; get; }
 
         public string UserName {  set; get; }
-
-
+         
 
         [Required]
         public string  PersonName { set; get; }

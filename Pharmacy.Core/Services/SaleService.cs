@@ -149,7 +149,7 @@ public class SaleService : ISaleService
             await _unitOfWorkService.BeginTransactionAsync();
             try
             {
-                // استرجاع الكميات القديمة وحذف سجلات المخزون
+               
                 foreach (var oldItem in existingSale.SaleItems)
                 {
                     await ReturnQuantityToBatchAsync(oldItem);
@@ -157,7 +157,7 @@ public class SaleService : ISaleService
                      
                 }
 
-                // تحديث العناصر الجديدة داخل الكائن الموجود
+                
                 existingSale.SaleItems = saleUpdate.SaleItems.Select(si => si.ToSaleItem()).ToList();
                 existingSale.TotalAmount = CalculateTotalAmount(existingSale.SaleItems.ToList());
                 existingSale.EmployeeId = saleUpdate.EmployeeId;
