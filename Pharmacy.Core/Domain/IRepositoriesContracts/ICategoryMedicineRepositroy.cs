@@ -10,7 +10,7 @@ namespace Pharmacy.Core.Domain.IRepositoriesContracts
     public interface ICategoryMedicineRepositroy
     {
          
-            Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync();
+            Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync(string SeachQuery);
 
             Task<MedicineCategory?> AddCategoryAsync(MedicineCategory category);
 

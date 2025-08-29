@@ -80,6 +80,9 @@ namespace Pharmacy.WebApi.Controllers
 
                 user.RefreshToken = response.RefreshToken;
                 user.RefershTokenExpiration = response.RefreshExpiration;
+                response.id=user.Id;
+                response.UserName=user.UserName;
+
 
                 await
                 _userManager.UpdateAsync(user);

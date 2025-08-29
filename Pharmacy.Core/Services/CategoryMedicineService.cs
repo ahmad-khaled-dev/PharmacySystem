@@ -18,9 +18,9 @@ namespace Pharmacy.Core.Services
         }
 
 
-        public async Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync()
+        public async Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync(string SearchQuery)
         {
-            var categories = await _categoryMedicineRepositroy.GetAllCategoriesAsync();
+            var categories = await _categoryMedicineRepositroy.GetAllCategoriesAsync(SearchQuery);
 
             return categories.Select(cm => new MedicineCategory()
             {

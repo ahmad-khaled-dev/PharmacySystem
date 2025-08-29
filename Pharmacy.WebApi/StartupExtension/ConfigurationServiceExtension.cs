@@ -241,6 +241,19 @@ namespace Pharmacy.WebApi.StartupExtension
             services.AddHostedService<DbSeederService>();
 
 
+            //Localization
+
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.Configure<RequestLocalizationOptions>(options=>
+                {
+                    var supportedCulutres = new[] { "en", "ar" };
+                    options.SetDefaultCulture("en");
+                    options.AddSupportedCultures(supportedCulutres);
+                    options.AddSupportedCultures(supportedCulutres);
+
+
+                });
+
             return services;
         }
 

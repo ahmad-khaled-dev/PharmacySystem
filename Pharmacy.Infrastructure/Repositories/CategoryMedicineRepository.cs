@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Bogus.DataSets;
+using Microsoft.EntityFrameworkCore;
 using Pharmacy.Core.Domain.Entities;
 using Pharmacy.Core.Domain.IRepositoriesContracts;
 using Pharmacy.Infrastructure.DbContext;
@@ -56,10 +57,16 @@ namespace Pharmacy.Infrastructure.Repositories
                 .FirstOrDefaultAsync(c => c.MedicineCategoryID == categoryId);
         }
 
-        public async Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync()
+        public async Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync(string searchQuery)
         {
+            if (string.IsNullOrWhiteSpace(searchQuery))
+                return await _medicineCategories.ToListAsync();
 
-            return await _medicineCategories.ToListAsync();
+
+            return await _medicineCategories
+           .Where(c => c.Name.ToLower().StartsWith(searchQuery.ToLower()))
+           .ToListAsync();
+             
         }
 
         public async Task<bool> UpdateCategoryAsync(MedicineCategory category)

@@ -2,6 +2,8 @@
 {
     public class AuthenticationResponse
     {
+        public Guid id { get; set; }
+
         public string? UserName { set; get; } = string.Empty;
 
         public string? Token { set; get; } = string.Empty;
