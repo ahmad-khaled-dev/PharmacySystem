@@ -28,7 +28,7 @@ namespace Pharmacy.Core.DTO.SaleDTO
             {
                 Id = sale.Id,
                 SaleDate = sale.SaleDate,
-                EmployeeName = sale.Employee?.User.UserName,
+                EmployeeName = sale.Employee?.PersonName,
                 TotalAmount = sale.TotalAmount ?? 0,
                 SaleItems = sale.SaleItems?.Select(i => i.ToSaleItemResponse()).ToList() ?? new List<SaleItemResponse>()
             };
