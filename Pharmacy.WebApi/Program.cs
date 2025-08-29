@@ -7,16 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.configureServices(builder.Configuration);
 
 // ? Add CORS
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowReactApp", policy =>
-//    {
-//        policy
-//            .WithOrigins("http://localhost:3000") // 
-//            .AllowAnyHeader()
-//            .AllowAnyMethod();
-//    });
-//});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000") // 
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -42,7 +42,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-//app.UseCors("AllowReactApp");
+app.UseCors("AllowReactApp");
 
 app.Use(async (context, next) =>
 {
