@@ -3,20 +3,37 @@ using Pharmacy.WebApi.StartupExtension;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            ;
+    });
+});
+
 // Add services to the container.
 builder.Services.configureServices(builder.Configuration);
 
 // ? Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp", policy =>
-    {
-        policy
-            .WithOrigins("http://localhost:3000") // 
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+////builder.Services.AddCors(options =>
+////{
+////    options.AddPolicy("AllowReactApp", policy =>
+////    {
+////        policy
+////            .WithOrigins("http://0.0.0.0:3000") // 
+////            .AllowAnyHeader()
+////            .AllowAnyMethod();
+////    });
+////});
+///
+
+
+
 
 var app = builder.Build();
 
@@ -42,13 +59,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseCors("AllowReactApp");
 
 app.Use(async (context, next) =>
 {
     Console.WriteLine("Request path: " + context.Request.Path);
     await next.Invoke();
 });
+app.UseCors("AllowAll");
 
 
 app.UseAuthentication();

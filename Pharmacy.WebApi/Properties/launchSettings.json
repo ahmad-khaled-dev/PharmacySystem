@@ -1,7 +1,9 @@
 {
   "profiles": {
     "Pharmacy.WebApi": {
-      "commandName": "Project"
+        "commandName": "Project",
+        "applicationUrl": "http://0.0.0.0:5200",
+        
     },
     "IIS Express": {
       "commandName": "IISExpress",
