@@ -37,7 +37,7 @@ namespace Pharmacy.Core.Services
                     {
                         Email = employeeAddRequest.Email,
                         PhoneNumber = employeeAddRequest.Phone,
-                        UserName = employeeAddRequest.Email.Split('@')[0] ?? employeeAddRequest.Email
+                        UserName = employeeAddRequest.UserName
                     };
 
                     if (await _roleManager.RoleExistsAsync("User") == false && employeeAddRequest.Role == "User")
@@ -72,57 +72,54 @@ namespace Pharmacy.Core.Services
             var employee = await _employeeService.GetByIdAsync(request.EmployeeID);
 
             if (employee == null)
-            {
                 return (false, null, "الموظف غير موجود");
-            }
 
             var user = await _userManager.FindByEmailAsync(employee.Email);
-            if (user == null )
+            if (user == null)
+                return (false, null, "المستخدم غير موجود");
 
-                return (false, null, "المستخدم غير موجود")!;
+            var strategy = _unitOfWorkService.CreateExecutionStrategy(); // ✅ EF Execution Strategy
 
-             
-            await _unitOfWorkService.BeginTransactionAsync();
-
-            try
+            return await strategy.ExecuteAsync(async () =>
             {
-                if(!string.IsNullOrWhiteSpace(request.Email))
-                user.UserName = request.Email.Split('@')[0] ?? employee.Email;
-                user.Email = request.Email ?? employee.Email;
-                user.PhoneNumber = request.Phone ?? employee.Phone;
-                 
+                await _unitOfWorkService.BeginTransactionAsync();
 
-                var updateUserResult = await _userManager.UpdateAsync(user); 
-
-                if (!updateUserResult.Succeeded)
-                    return (false, updateUserResult.Errors, "فشل تحديث المستخدم");
-
-
-
-                if (!string.IsNullOrWhiteSpace(request.Role))
+                try
                 {
-                    var result = await ChangeUserRoleAsync(user, request.Role);
+                    // تحديث بيانات المستخدم
+                    if (!string.IsNullOrWhiteSpace(request.Email))
+                        user.UserName = request.Email.Split('@')[0] ?? employee.Email;
+                    user.Email = request.Email ?? employee.Email;
+                    user.PhoneNumber = request.Phone ?? employee.Phone;
 
-                    if (!result)
-                        return (false,null,"فشل تجديث ال role");
+                    var updateUserResult = await _userManager.UpdateAsync(user);
+                    if (!updateUserResult.Succeeded)
+                        return (false, updateUserResult.Errors, "فشل تحديث المستخدم");
 
+                    // تحديث الرول
+                    if (!string.IsNullOrWhiteSpace(request.Role))
+                    {
+                        var result = await ChangeUserRoleAsync(user, request.Role);
+                        if (!result)
+                            return (false, null, "فشل تحديث الـ role");
+                    }
+
+                    // تحديث بيانات الموظف
+                    var success = await _employeeService.UpdateAsync(request);
+                    if (!success)
+                        return (false, null, "فشل تحديث بيانات الموظف");
+
+                    await _unitOfWorkService.CommitTransactionAsync();
+                    return (true, null, "تم التحديث بنجاح");
                 }
-
-                var success = await _employeeService.UpdateAsync(request);
-
-                if (!success)
-                    return (false, null, "فشل تحديث بيانات الموظف")!;
-
-                await _unitOfWorkService.CommitTransactionAsync();
-                return (true, null, "تم التحديث بنجاح")!;
-            }
-            catch (Exception e)
-            {
-                await _unitOfWorkService.RollbackTransactionAsync();
-                throw;
-            }
+                catch
+                {
+                    await _unitOfWorkService.RollbackTransactionAsync();
+                    throw;
+                }
+            });
         }
-         
+
         public async Task<bool> ChangeUserRoleAsync(ApplicationUser user, string newRole)
         {
             

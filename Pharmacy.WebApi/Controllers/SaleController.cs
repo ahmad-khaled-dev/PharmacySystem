@@ -4,7 +4,7 @@ using Pharmacy.Core.DTO.SaleDTO;
 using Pharmacy.WebApi.Controllers;
 
 
-[AllowAnonymous]
+[Authorize]
 public class SaleController : CustomController
 {
     private readonly ISaleService _saleService;

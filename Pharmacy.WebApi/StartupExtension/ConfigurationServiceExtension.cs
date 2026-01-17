@@ -7,11 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 using Pharmacy.Core.ConfiurationSettings;
 using Pharmacy.Core.Domain.Entities.IdentityEntities;
 using Pharmacy.Core.Domain.IRepositoriesContracts;
-using Pharmacy.Core.DTO;
 using Pharmacy.Core.IServiceContracts;
 using Pharmacy.Core.IServiceContracts.IValidatorContract;
 using Pharmacy.Core.Services;
 using Pharmacy.Core.Services.ValidatorServices;
+using Pharmacy.Infrastructure.Data.Seeders;
 using Pharmacy.Infrastructure.DbContext;
 using Pharmacy.Infrastructure.Repositories;
 using System.Text;
@@ -58,18 +58,17 @@ namespace Pharmacy.WebApi.StartupExtension
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.Password.RequiredLength = 8;
-                options.Password.RequireDigit = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequiredUniqueChars = 1;
+                options.Password.RequireDigit = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars =0 ;
+                options.Password.RequireNonAlphanumeric = false;
 
 
                 options.Lockout.MaxFailedAccessAttempts = 3;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-
-                // options.SignIn.RequireConfirmedEmail = true;
-
-                options.User.RequireUniqueEmail = true;
+                 
+               
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders()
@@ -91,24 +90,19 @@ namespace Pharmacy.WebApi.StartupExtension
             })
                 .AddJwtBearer(options =>
                  {
-                      
-                     options.TokenValidationParameters = new TokenValidationParameters()
-                     {
 
+                     options.TokenValidationParameters = new TokenValidationParameters
+                     {
                          ValidateIssuer = true,
                          ValidateAudience = true,
-                         ValidateLifetime = true,
                          ValidateIssuerSigningKey = true,
-
+                         ValidateLifetime = true,
 
                          ValidIssuer = configuration["Jwt:Issuer"],
-                         ValidAudience = configuration["jwt:Audience"],
-                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]! )),
-
-
+                         ValidAudience = configuration["Jwt:Audience"],
+                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
                      };
-
-
+                      
                  }
             );
 
@@ -118,10 +112,44 @@ namespace Pharmacy.WebApi.StartupExtension
             //Add Swagger
             services.AddEndpointsApiExplorer();
 
+            //services.AddSwaggerGen(options =>
+            //{
+            //    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.Xml"));
+            //});
+
             services.AddSwaggerGen(options =>
             {
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "api.Xml"));
+
+                // إضافة إعدادات الـ JWT Authentication لـ Swagger
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = "أدخل JWT Bearer token بهذا الشكل: Bearer {token}",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = Microsoft.OpenApi.Models.ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
             });
+
 
             //Config JwtSettings
 
@@ -142,15 +170,7 @@ namespace Pharmacy.WebApi.StartupExtension
             services.AddTransient<IEmployeeService, EmployeeService>();
             services.AddTransient<IUserRegistrationService, UserRegistrationService>();
 
- 
-
-            
-            //Supplier 
-
-            //services.AddTransient<ISuppliersRepository, SuppliersRepository>();
-            //services.AddTransient<ISupplierService, SupplierService>();
-
-
+  
             //Purchase
              
             services.AddTransient<IPurchaseRepository, PurchasesRepository>();
@@ -214,8 +234,25 @@ namespace Pharmacy.WebApi.StartupExtension
 
             //InventoryItem
             services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
- 
 
+
+            //Seed Data by bogus library 
+             
+            services.AddHostedService<DbSeederService>();
+
+
+            //Localization
+
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.Configure<RequestLocalizationOptions>(options=>
+                {
+                    var supportedCulutres = new[] { "en", "ar" };
+                    options.SetDefaultCulture("en");
+                    options.AddSupportedCultures(supportedCulutres);
+                    options.AddSupportedCultures(supportedCulutres);
+
+
+                });
 
             return services;
         }

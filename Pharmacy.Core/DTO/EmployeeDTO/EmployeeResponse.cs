@@ -9,7 +9,6 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
 
         public int EmployeeID { set; get; }
 
-         
         public string UserName { set; get; }
 
           public string PersonName { set; get; }

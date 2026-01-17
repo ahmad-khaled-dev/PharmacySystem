@@ -12,8 +12,8 @@ using Pharmacy.Infrastructure.DbContext;
 namespace Pharmacy.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250616092314_Initial")]
-    partial class Initial
+    [Migration("20250805100206_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -142,23 +142,16 @@ namespace Pharmacy.Infrastructure.Migrations
                     b.Property<string>("BatchNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal?>("CurrentPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("LastUpdate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Product")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("PurchaseItemId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Quantity")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("BatchID");
@@ -321,6 +314,10 @@ namespace Pharmacy.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PersonName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -613,7 +610,7 @@ namespace Pharmacy.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Image")
+                    b.Property<string>("ImagPrescription")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Price")

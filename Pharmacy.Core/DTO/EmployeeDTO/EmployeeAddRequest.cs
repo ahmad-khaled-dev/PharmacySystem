@@ -11,6 +11,8 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
         [Required]
         public string Password { set; get; }
 
+        public string UserName {  set; get; }
+         
 
         [Required]
         public string  PersonName { set; get; }
@@ -46,9 +48,9 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
                 PersonName = this.PersonName,
                 NumberOfCertificate = this.NumberOfCertificate,
                 Role = this.Role ,
-               UserId = this.UesrId
-
-                
+               UserId = this.UesrId,
+               Phone=this.Phone,
+                 
 
             };
         }

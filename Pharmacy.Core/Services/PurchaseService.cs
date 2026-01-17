@@ -95,13 +95,18 @@ namespace Pharmacy.Core.Services
             if (!isValid)
                 return false;
 
-            //var productIds = purchase.PurchaseItems.Select(pi => pi.ProductID).ToList();
-            //var products = await _productRepository.GetExistingProductsByIdsAsync(productIds);
+             //var productIds = purchase.PurchaseItems.Select(pi => pi.ProductID).ToList();
+             //var products = await _productRepository.GetExistingProductsByIdsAsync(productIds);
+
+             
+             
 
             var correctTotal = CalculateTotalAmount(purchase.PurchaseItems.ToList(), purchase.discount);
 
             if (purchase.TotalAmount != correctTotal)
                 purchase.TotalAmount = correctTotal;
+
+
 
             var strategy = _unitOfWorkService.CreateExecutionStrategy();
 
@@ -115,6 +120,7 @@ namespace Pharmacy.Core.Services
                     var result = await _purchaseRepository.UpdatePurchaseAsync(purchase);
 
                     await _unitOfWorkService.SaveChangesAsync();
+
                     await _unitOfWorkService.CommitTransactionAsync();
                     return result;
                 }

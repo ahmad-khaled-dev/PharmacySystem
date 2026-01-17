@@ -47,7 +47,8 @@ namespace Pharmacy.Core.DTO.EmployeeDTO
                 PersonName = this.PersonName,
                 NumberOfCertificate = this.NumberOfCertificate,
                 Role = this.Role ,
-                UserId=this.UserID
+                UserId=this.UserID,
+                Phone=this.Phone
                  
             };
             }

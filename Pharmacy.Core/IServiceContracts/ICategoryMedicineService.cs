@@ -12,7 +12,7 @@ namespace Pharmacy.Core.IServiceContracts
 {
    public interface ICategoryMedicineService
     {
-        Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync();
+        Task<IEnumerable<MedicineCategory>> GetAllCategoriesAsync(string SeachQuery);
 
         Task<MedicineCategory> AddCategoryAsync(MedicineCategory  medicineCategory, IFormFile? Image = null);
 
@@ -22,6 +22,6 @@ namespace Pharmacy.Core.IServiceContracts
 
         Task<bool> UpdateCategoryAsync(MedicineCategory medicineCategory, IFormFile? Image = null);
 
-
+        //Task<IEnumerable<MedicineCategory>> SearchCategoriesByNameAsync(string name);
     }
 }

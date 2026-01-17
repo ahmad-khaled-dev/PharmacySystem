@@ -15,6 +15,8 @@ namespace Pharmacy.Core.Domain.Entities.IdentityEntities
         [Required]
         public DateTime? HireDate { set; get; }
 
+        public string Phone { set; get; }
+
         public float ? Salary { set; get; }
 
         [Required]

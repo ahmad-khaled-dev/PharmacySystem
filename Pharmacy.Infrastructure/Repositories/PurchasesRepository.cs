@@ -30,9 +30,7 @@ namespace Pharmacy.Infrastructure.Repositories
 
             return purchase;
         }
-
-
-
+         
         public async Task<bool> DeletePurchaseAsync(int purchaseId)
         {
             var purchase = await _purchases
@@ -99,9 +97,9 @@ namespace Pharmacy.Infrastructure.Repositories
         private void UpdatePurchaseItems(Purchase existingPurchase, Purchase updatedPurchase)
         {
             var existingItems = existingPurchase.PurchaseItems.ToList();
-            var updatedItems = updatedPurchase.PurchaseItems.ToList();
+            var updatedItems = updatedPurchase.PurchaseItems?.ToList() ?? new();
 
-           
+            // حذف العناصر المحذوفة
             foreach (var existingItem in existingItems)
             {
                 if (!updatedItems.Any(i => i.PurchaseItemID == existingItem.PurchaseItemID))
@@ -111,6 +109,7 @@ namespace Pharmacy.Infrastructure.Repositories
                 }
             }
 
+            // تحديث أو إضافة العناصر
             foreach (var updatedItem in updatedItems)
             {
                 var existingItem = existingItems.FirstOrDefault(i => i.PurchaseItemID == updatedItem.PurchaseItemID);
@@ -118,11 +117,12 @@ namespace Pharmacy.Infrastructure.Repositories
                 if (existingItem != null)
                 {
                     UpdatePurchaseItemFields(existingItem, updatedItem);
-                    UpdateBatches(existingItem, updatedItem.Batches.ToList());
+                    var updatedBatches = updatedItem.Batches?.ToList() ?? new();
+                    UpdateBatches(existingItem, updatedBatches);
                 }
                 else
                 {
-                    existingPurchase.PurchaseItems.Add(updatedItem); // مضاف حديثًا
+                    existingPurchase.PurchaseItems.Add(updatedItem); // عنصر جديد
                 }
             }
         }
